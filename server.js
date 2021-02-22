@@ -6,7 +6,8 @@ const fetch = require('node-fetch');
 let projectData = {
     msgs: [],
 };
-let weatherData = {};
+const weatherData = [];
+const zips = [];
 const port = 8000;
 
 // Personal API Key for OpenWeatherMap API
@@ -35,7 +36,7 @@ const server = app.listen(port, () => {
 // Initialize all route with a callback function
 app.get('/all', getAll);
 app.get('/latest', getLatest);
-app.get('/weather', getWeather);
+app.post('/weather', postWeather);
 
 // Callback function to complete GET '/all'
 function getAll(req, res) {
@@ -49,27 +50,53 @@ function getLatest(req, res) {
 
 // Weather gets its own GET route so that we can 
 // manage the number of times we make the API call
-async function getWeather(req, res) {
+async function postWeather(req, res) {
+    // Get body data
+    data = req.body;
+
+    // Data verification
+    if ('zip' in data) {
+        // GOOD
+    } else {
+        // TODO
+    }
+
     // If the weatherData has not been populated yet this session, populate from API call
-    if (Object.keys(weatherData).length == 0) {
-        console.log('Fetching weather...');
-        await fetchWeather();
+    if (weatherData.length == 0 || !(zips.includes(data.zip))) {
+        console.log(`Fetching weather because weatherData.length = ${weatherData.length} and zips.includes(${data.zip}) == ${zips.includes(data.zip)}...`);
+        await fetchWeather(data.zip);
+    }
+
+    // choose the right weather data
+    let retval = {};
+    for (let i = 0; i < weatherData.length; i++) {
+        if (weatherData[i].zip == data.zip) {
+            retval = weatherData[i];
+            break;
+        }
     }
 
     // Send the weather data
-    res.send(weatherData);
+    console.log(retval);
+    res.send(retval);
 }
 
 // Function to fetch the weather from the OpenWeather API
-async function fetchWeather() {
-    const city = 'dallas';
-    const url = `${urlBase}weather?q=${city}&appid=${key}&units=imperial`;
+async function fetchWeather(zip='') {
+    const url = `${urlBase}weather?zip=${zip},US&appid=${key}&units=imperial`;
 
     console.log(`Fetching from ${url}`);
 
     try {
         const response = await fetch(url);
-        weatherData = await response.json();
+        const data = await response.json();
+
+        // add zip to data
+        data.zip = zip;
+        zips.push(zip);
+
+        // push into weatherData
+        weatherData.push(data);
         console.log('Successfully retrieved weather info');
       } catch (error) {
         console.log('Could not get weather info...', error);

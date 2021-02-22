@@ -1,45 +1,14 @@
-// Personal API Key for OpenWeatherMap API
-const key = 'b15ae133a3c70b65373849d6da9a5b8a';
-const urlBase = 'http://api.openweathermap.org/data/2.5/'
+// =============================================================================
+// INITIALIZATION
+// =============================================================================
 
 // Event listener to add function to existing HTML DOM element
-const btn = document.getElementById('submit-button');
-btn.addEventListener('click', myEventListener);
+const btn = document.getElementById('generate');
+btn.addEventListener('click', eClickGenerate);
 
-/* Function called by event listener */
-async function myEventListener(e) {
-    const zipcode = document.getElementById('zipcode');
-    const feelings = document.getElementById('feelings');
-
-    // Data Validation
-    if (zipcode.value == '' | feelings.value == '') {
-        console.log('There are missing values!');
-        return
-    } else {
-        console.log('Values accepted.');
-    }
-
-    // Construct the POST message
-    weather = await getCurrentWeather();
-    console.log(weather);
-
-    message = ` - Feeling ${feelings.value.toLowerCase()} today. It feels like it's ${weather.main.feels_like}°F outside, and it's a ${weather.weather[0].description} day.`;
-
-    postData('/add', { msg: message })
-    .then((res) => {
-        return getData('/latest');
-    })
-    .then((res) => {
-        return res.text();
-    })
-    .then((msg) => {
-        addToLog(msg);
-    })
-    .catch((error) => {
-        addToLog('An error occurred!');
-        console.log(error);
-    })
-}
+// =============================================================================
+// HELPER FUNCTIONS
+// =============================================================================
 
 function addToLog(message='') {
     const log = document.getElementById('log');
@@ -53,11 +22,18 @@ function addToLog(message='') {
 }
 
 /* Function to GET Web API Data*/
-async function getCurrentWeather() {
-    const response = fetch('/weather');
+async function getCurrentWeather(zip = '') {
+    const response = await fetch('/weather', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ zip })
+    });
 
     try {
-        return await (await response).json();
+        return await response.json();
     } catch (error) {
         console.log('An error occurred...', error);
         return error.toString();
@@ -91,4 +67,44 @@ async function getData(url = '') {
     } catch (error) {
         console.log('An error occurred...', error);
     }
+}
+
+// =============================================================================
+// EVENT HANDLERS
+// =============================================================================
+
+/* Function called by event listener */
+async function eClickGenerate(e) {
+    const zipcode = document.getElementById('zip');
+    const feelings = document.getElementById('feelings');
+    const date = new Date().toLocaleDateString("en-US")
+
+    // Data Validation
+    if (zipcode.value == '' | feelings.value == '') {
+        console.log('There are missing values!');
+        return
+    } else {
+        console.log('Values accepted.');
+    }
+
+    // Construct the POST message
+    weather = await getCurrentWeather(zipcode.value);
+    console.log(weather);
+
+    message = `${date} - Feeling ${feelings.value.toLowerCase()} today. It feels like it's ${weather.main.feels_like}°F outside, and it's a ${weather.weather[0].description} day.`;
+
+    postData('/add', { msg: message })
+    .then((res) => {
+        return getData('/latest');
+    })
+    .then((res) => {
+        return res.text();
+    })
+    .then((msg) => {
+        addToLog(msg);
+    })
+    .catch((error) => {
+        addToLog('An error occurred!');
+        console.log(error);
+    })
 }
