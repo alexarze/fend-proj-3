@@ -1,0 +1,90 @@
+/* Import font */
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+}
+
+#app {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+
+    color: white;
+    font-family: 'DotGothic16', monospace;
+
+    background-color: #000;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+
+    padding-top: 5vh;
+    padding-bottom: 5vh;
+}
+
+/* ========================================================= */
+/* FORM AND LOG */
+/* ========================================================= */
+
+#zipcode-form * {
+    display: block;
+    font-size: 1.5rem;
+}
+
+label, input[type="submit"] {
+    margin-top: 1.5rem;
+}
+
+.button {
+    background-color: black;
+    color: white;
+    transition-duration: 200ms;
+
+    padding: 0.5em 1.5em;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.button:hover {
+    background-color: white;
+    color: black;
+    padding: 0.5em 2em;
+    transition-duration: 200ms;
+}
+
+#log, input, textarea {
+    background-color: black;
+    border: 2px solid white;
+    resize: vertical;
+    color: white;
+    font-family: inherit;
+}
+
+#log-container {
+    width: 75vw;
+    flex-grow: 1;
+
+    display: flex;
+    flex-direction: column;
+}
+
+#log {
+    flex-grow: 1;
+    overflow-y: scroll;
+}
+
+/* ========================================================= */
+/* TYPOGRAPY */
+/* ========================================================= */
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+}
